@@ -16,8 +16,8 @@ def mmmain():
     f.write(pdffile)
     f.close()
 
-    data = "SETERE Однажды в студеную зимнюю пору"
-
+    # data = "SETERE http://spb.media/text/teoriya-igr http://hole.0xd8.org/check/123456-34568 Petr Ivanov АА"
+    data = 'SETERE  http://spb.media/text/teoriya-igr http://hole.0xd8.org/check/123456'
     result = OP_RETURN_store(data, testnet)
 
     if 'error' in result:

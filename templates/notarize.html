@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>
+    </title>
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"
+          rel="stylesheet">
+</head>
+
+<body>
+<div class="container">
+    <div class="well">
+        <h3>
+            Check the result
+        </h3>
+        <p>
+            If everything is ok, enter your name and press "Notarize" button
+        </p>
+    </div>
+    <div class="form-group">
+        <label>
+            Signature
+        </label>
+        <input type="text" class="form-control">
+    </div>
+    <div class="form-group">
+        <label>
+            Bitcoin address to charge
+        </label>
+        <input type="text" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-lg btn-primary" id="notarize-button">
+        Notarize
+    </button>
+    <span class="badge">You'll be charged 0.0002 BTC for this operation</span>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"
+>
+</script>
+<script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"
+>
+</script>
+<div class="container">
+    <iframe id="iframepdf" src="/pdf">
+    </iframe>
+</div>
+</body>
+
+</html>
