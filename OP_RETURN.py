@@ -26,6 +26,7 @@
 import subprocess, json, time, random, os.path, binascii, struct, string, re, hashlib
 
 from decimal import Decimal, getcontext
+
 # getcontext().prec = 8
 
 # Python 2-3 compatibility logic
@@ -44,10 +45,9 @@ OP_RETURN_BITCOIN_USE_CMD = True  # use command-line instead of JSON-RPC?
 def JSONtoAmount(value):
     return long(round(value * 1e8))
 
+
 def AmountToJSON(amount):
     return float(amount / 1e8)
-
-
 
 
 if OP_RETURN_BITCOIN_USE_CMD:
@@ -165,7 +165,7 @@ def OP_RETURN_store(data, testnet=False):
 
         last_txn = ((data_ptr + OP_RETURN_MAX_BYTES) >= data_len)  # is this the last tx in the chain?
         change_amount = input_amount - OP_RETURN_BTC_FEE
-        change_amount=float(format(change_amount,'.8'))
+        change_amount = float(format(change_amount, '.8'))
         metadata = data[data_ptr:data_ptr + OP_RETURN_MAX_BYTES]
 
         # Build and send this transaction
@@ -439,7 +439,7 @@ def OP_RETURN_bitcoin_cmd(command, testnet, *args):  # more params are read from
         sub_args.append(command)
 
         for arg in args:
-            print (arg)
+            print(arg)
             sub_args.append(json.dumps(arg) if isinstance(arg, (dict, list, tuple)) else str(arg))
 
         raw_result = subprocess.check_output(sub_args).decode("utf-8").rstrip("\n")
