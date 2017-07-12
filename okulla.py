@@ -1,19 +1,26 @@
-from flask import Flask, make_response, render_template, request, redirect
+from flask import Flask, make_response, render_template, request, redirect, session
+from flask_session import Session
 from OP_RETURN import *
 import pdfkit
 import uuid
 import hashlib
-
+import base64
 
 
 testnet = True
-
+STORE = '/home/vadikas/PycharmProjects/okulla/store/'
 
 def trans(key):
-    return hashlib.md5(key.encode("utf-8")).digest()
+    return str(hashlib.md5(key).digest())
 
 
 app = Flask(__name__)
+
+# Check Configuration section for more details
+SESSION_TYPE = 'redis'
+app.config.from_object(__name__)
+
+Session(app)
 
 @app.route('/')
 def main():
@@ -38,19 +45,38 @@ def notarize():
     except:
         return redirect("/url")
 
-    filename = str(uuid.uuid4()
+    filename = str(uuid.uuid4())
+    session['fname'] = filename
+    session['url'] = url
+    session['md5'] = trans(pdffile)
 
-    f = open('store/' + filename + '.pdf', "wb")
+    f = open(STORE + filename + '.pdf', "wb")
     f.write(pdffile)
     f.close()
 
-    return render_template("notarize.html")
+    return render_template("notarize.html", pdf_name=filename)
 
 
 @app.route("/publish", methods=['POST'])
 def publish():
     # data = "SETERE http://spb.media/text/teoriya-igr http://hole.0xd8.org/check/123456-34568 Petr Ivanov АА"
-    data = str("SETERE  http://spb.media/text/teoriya-igr http://hole.0xd8.org/check/123456")
+
+    sign = request.form['signature']
+    btc_addr = request.form['btc-addr']
+    if not sign:
+        return redirect("/url")
+
+    txthash = str(base64.b64encode(str(session['md5']).encode()))
+    data = "SETERE " + \
+           ' ' + session['url'] + \
+           ' ' + txthash + \
+           ' ' + sign + \
+           ' ' + "http://hole.0xd8.org/check/" \
+           + session['fname']
+
+    print(data)
+    data = data.encode("utf-8").decode("utf-8")
+
     result = OP_RETURN_store(data, testnet)
 
     if 'error' in result:
@@ -62,14 +88,13 @@ def publish():
                 '<br><iframe id="iframepdf style="overflow:hidden;height:100%;width:100%" height="100%" width="100%" src="/pdf"></iframe>')
 
 
-@app.route("/pdf")
+@app.route("/pdf/<uuid:post_id>")
 # @app.route('/docs/<id>')
-def get_pdf(id=None):
-    #    if id is not None:
-    #    binary_pdf = get_binary_pdf_data_from_database(id=id)
-    f = open('/tmp/out.pdf', "rb")
+def get_pdf(post_id):
+    f = open(STORE + str(post_id) + '.pdf', "rb")
     binary_pdf = f.read()
     f.close()
+
     response = make_response(binary_pdf)
     response.headers['Content-Type'] = 'application/pdf'
     response.headers['Content-Disposition'] = \
