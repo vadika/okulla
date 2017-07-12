@@ -82,10 +82,17 @@ def publish():
     if 'error' in result:
         return ('Error: ' + result['error'])
     else:
-        return ("TxIDs:<br>" + "<br>".join(result['txids']) + "<br><br>Ref: " + result[
-            'ref'] + "<br><br>Wait a few seconds then check on: http://" +
-                ('testnet.' if testnet else '') + 'coinsecrets.org/' +
-                '<br><iframe id="iframepdf style="overflow:hidden;height:100%;width:100%" height="100%" width="100%" src="/pdf"></iframe>')
+        return render_template("complete.html", url=session['url'], txids=result['txids'], ref=result['ref'],
+                               fname=session['fname'], coinbase=('testnet.' if testnet else '') + 'coinsecrets.org/')
+        # ("TxIDs:<br>" + "<br>".join(result['txids']) + "<br><br>Ref: " + result[
+        # 'ref'] + "<br><br>Wait a few seconds then check on: http://" +
+        #     ('testnet.' if testnet else '') + 'coinsecrets.org/' )
+
+
+@app.route("/check/<uuid:post_id>")
+def check(post_id):
+    return redirect("pdf/" + str(post_id))
+
 
 
 @app.route("/pdf/<uuid:post_id>")

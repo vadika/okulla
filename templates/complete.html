@@ -21,20 +21,22 @@
 </script>
 <div class="well">
     <h3>
-        Well!
+        Well done!
     </h3>
     <p>
-        This the document http://...... was submited to Bitcoin blockchain.
+        This the document based on <a href="{{ url }}"{{ url }}</a> <a href="pdf/{{ fname }}">{{ fname }}</a> was
+        submited to Bitcoin blockchain.
     </p>
     <div>
-        ID of transaction is ....
+        ID(s) of transaction are: {% for t in txids %} <br>
+        <a href="https://www.blocktrail.com/tBTC/tx/{{ t }}">{{ t }}</a>{% endfor %}
     </div>
     <div>
-        Document ID is 1234-2345
+        Document ID is {{ ref }}
     </div>
     <div>
-        You can check the submission on any &nbsp;bitcoin blockchain browser --
-        http://www.blocktrail.com/BTC/tx/....
+        You can check the submission on any &nbsp;bitcoin blockchain browser -- at
+        <a href="http://{{ coinbase }}">{{ coinbase }}</a> for example.
     </div>
     <div>
         <br>
