@@ -24,7 +24,7 @@
         Well done!
     </h3>
     <p>
-        This the document based on <a href="{{ url }}"{{ url }}</a> <a href="pdf/{{ fname }}">{{ fname }}</a> was
+        This the document based on <a href="{{ url }}">{{ url }}</a> id <a href="pdf/{{ fname }}">{{ fname }}</a> was
         submited to Bitcoin blockchain.
     </p>
     <div>
@@ -32,12 +32,16 @@
         <a href="https://www.blocktrail.com/tBTC/tx/{{ t }}">{{ t }}</a>{% endfor %}
     </div>
     <div>
-        Document ID is {{ ref }}
+        Reference ID is {{ ref }}
     </div>
     <div>
         You can check the submission on any &nbsp;bitcoin blockchain browser -- at
         <a href="http://{{ coinbase }}">{{ coinbase }}</a> for example.
     </div>
+    <div>
+        Save this data for your reference!
+    </div>
+
     <div>
         <br>
     </div>

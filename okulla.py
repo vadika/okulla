@@ -66,7 +66,10 @@ def publish():
     if not sign:
         return redirect("/url")
 
-    txthash = str(base64.b64encode(str(session['md5']).encode()))
+    # txthash = base64.b64encode(bytes(session['md5'].encode()))
+    txthash = str(base64.b64encode(str(session['md5']).encode()), 'utf-8')
+
+    print("txthash " + txthash)
     data = "SETERE " + \
            ' ' + session['url'] + \
            ' ' + txthash + \
