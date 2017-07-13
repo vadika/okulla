@@ -5,6 +5,7 @@ import pdfkit
 import uuid
 import hashlib
 import base64
+from shorty import *
 
 
 testnet = True
