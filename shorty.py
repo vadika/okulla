@@ -42,10 +42,11 @@ shorty_home = Blueprint('shorty_home', __name__, template_folder='templates')
 def s_home():
     if request.method == 'POST':
         original_url = str_encode(request.form.get('url'))
-        if urlparse(original_url).scheme == '':
-            url = 'http://' + original_url
-        else:
+        print("urlparse - " + str(urlparse(original_url).scheme, "utf-8"))
+        if urlparse(original_url).scheme:
             url = original_url
+        else:
+            url = b'http://' + original_url
         urlid = rdb.lpush("shorty", base64.urlsafe_b64encode(url))
         print("url=" + str(url, 'utf-8') + " short url id=" + str(urlid))
         encoded_string = toBase62(urlid)
