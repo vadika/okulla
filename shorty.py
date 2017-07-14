@@ -1,13 +1,16 @@
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, Blueprint
 from math import floor
 import string
 from urllib.parse import urlparse
-
 str_encode = str.encode
 from string import ascii_lowercase
 from string import ascii_uppercase
 import base64
+from redis import Redis
 
+rdb = Redis()
+
+host = "s/"
 
 def toBase62(num, b=62):
     if b <= 0 or b > 62:
@@ -32,36 +35,37 @@ def toBase10(num, b=62):
     return res
 
 
-@app.route('s/', methods=['GET', 'POST'])
-def home():
+shorty_home = Blueprint('shorty_home', __name__, template_folder='templates')
+
+
+@shorty_home.route('/s', methods=['GET', 'POST'])
+def s_home():
     if request.method == 'POST':
         original_url = str_encode(request.form.get('url'))
         if urlparse(original_url).scheme == '':
             url = 'http://' + original_url
         else:
             url = original_url
-        with sqlite3.connect('urls.db') as conn:
-            cursor = conn.cursor()
-            res = cursor.execute(
-                'INSERT INTO WEB_URL (URL) VALUES (?)',
-                [base64.urlsafe_b64encode(url)]
-            )
-            encoded_string = toBase62(res.lastrowid)
+        urlid = rdb.lpush("shorty", base64.urlsafe_b64encode(url))
+        print("url=" + str(url, 'utf-8') + " short url id=" + str(urlid))
+        encoded_string = toBase62(urlid)
         return render_template('shorty.html', short_url=host + encoded_string)
     return render_template('shorty.html')
 
 
-@app.route('s/<short_url>')
-def redirect_short_url(short_url):
+shorty_url = Blueprint('shorty_url', __name__, template_folder='templates')
+
+
+@shorty_url.route('/s/<short_url>')
+def s_url(short_url):
     decoded = toBase10(short_url)
     url = host  # fallback if no URL is found
-    with sqlite3.connect('urls.db') as conn:
-        cursor = conn.cursor()
-        res = cursor.execute('SELECT URL FROM WEB_URL WHERE ID=?', [decoded])
-        try:
-            short = res.fetchone()
-            if short is not None:
-                url = base64.urlsafe_b64decode(short[0])
-        except Exception as e:
-            print(e)
+    print("di = " + str(decoded))
+    try:
+        short = rdb.lindex("shorty", rdb.llen("shorty") - decoded)
+        if short is not None:
+            url = base64.urlsafe_b64decode(short)
+            print("rurl is " + str(url, "utf-8"))
+    except Exception as e:
+        print(e)
     return redirect(url)

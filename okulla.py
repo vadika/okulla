@@ -5,8 +5,7 @@ import pdfkit
 import uuid
 import hashlib
 import base64
-from shorty import *
-
+from shorty import shorty_url, shorty_home
 
 testnet = True
 STORE = '/home/vadikas/PycharmProjects/okulla/store/'
@@ -16,6 +15,8 @@ def trans(key):
 
 
 app = Flask(__name__)
+app.register_blueprint(shorty_home)
+app.register_blueprint(shorty_url)
 
 # Check Configuration section for more details
 SESSION_TYPE = 'redis'
