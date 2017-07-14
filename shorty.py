@@ -54,9 +54,21 @@ def s_home():
     return render_template('shorty.html')
 
 
+def make_shorty(url_to_short):
+    original_url = url_to_short
+    print("*urlparse - " + str(urlparse(original_url).scheme, "utf-8"))
+    if urlparse(original_url).scheme:
+        url = original_url
+    else:
+        url = b'http://' + original_url
+    urlid = rdb.lpush("shorty", base64.urlsafe_b64encode(url))
+    print("*url=" + str(url, 'utf-8') + " short url id=" + str(urlid))
+    encoded_string = toBase62(urlid)
+    return (host + encoded_string)
+
+
+
 shorty_url = Blueprint('shorty_url', __name__, template_folder='templates')
-
-
 @shorty_url.route('/s/<short_url>')
 def s_url(short_url):
     decoded = toBase10(short_url)

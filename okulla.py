@@ -5,7 +5,7 @@ import pdfkit
 import uuid
 import hashlib
 import base64
-from shorty import shorty_url, shorty_home
+from shorty import shorty_url, shorty_home, make_shorty
 
 testnet = True
 STORE = '/home/vadikas/PycharmProjects/okulla/store/'
@@ -73,11 +73,11 @@ def publish():
 
     print("txthash " + txthash)
     data = "SETERE " + \
-           ' ' + session['url'] + \
-           ' ' + txthash + \
+           ' ' + make_shorty(str(session['url'], 'utf-8') + \
+                             ' ' + txthash + \
            ' ' + sign + \
-           ' ' + "http://hole.0xd8.org/check/" \
-           + session['fname']
+                             ' ' + make_shorty("http://hole.0xd8.org/check/" + \
+                                               str(session['fname'], "utf-8")))
 
     print(data)
     data = data.encode("utf-8").decode("utf-8")
