@@ -25,29 +25,10 @@
 
 import subprocess, json, time, random, os.path, binascii, struct, string, re, hashlib
 
-from decimal import Decimal, getcontext
-
-# getcontext().prec = 8
-
-# Python 2-3 compatibility logic
-
-try:
-    basestring
-except NameError:
-    basestring = str
-
 # User-defined quasi-constants
 
-OP_RETURN_BITCOIN_IP = '127.0.0.1'  # IP address of your bitcoin node
-OP_RETURN_BITCOIN_USE_CMD = True  # use command-line instead of JSON-RPC?
-
-
-def JSONtoAmount(value):
-    return long(round(value * 1e8))
-
-
-def AmountToJSON(amount):
-    return float(amount / 1e8)
+OP_RETURN_BITCOIN_IP = 'bitcoin.0xd8.org'  # IP address of your bitcoin node
+OP_RETURN_BITCOIN_USE_CMD = False  # use command-line instead of JSON-RPC?
 
 
 if OP_RETURN_BITCOIN_USE_CMD:
@@ -55,8 +36,8 @@ if OP_RETURN_BITCOIN_USE_CMD:
 
 else:
     OP_RETURN_BITCOIN_PORT = ''  # leave empty to use default port for mainnet/testnet
-    OP_RETURN_BITCOIN_USER = ''  # leave empty to read from ~/.bitcoin/bitcoin.conf (Unix only)
-    OP_RETURN_BITCOIN_PASSWORD = ''  # leave empty to read from ~/.bitcoin/bitcoin.conf (Unix only)
+    OP_RETURN_BITCOIN_USER = 'vasya'  # leave empty to read from ~/.bitcoin/bitcoin.conf (Unix only)
+    OP_RETURN_BITCOIN_PASSWORD = 'qwerasdfzxcvzxcvbsdfgwert'  # leave empty to read from ~/.bitcoin/bitcoin.conf (Unix only)
 
 OP_RETURN_BTC_FEE = 0.0001  # BTC fee to pay per transaction
 OP_RETURN_BTC_DUST = 0.00001  # omit BTC outputs smaller than this
@@ -65,6 +46,19 @@ OP_RETURN_MAX_BYTES = 80  # maximum bytes in an OP_RETURN (80 as of Bitcoin 0.11
 OP_RETURN_MAX_BLOCKS = 10  # maximum number of blocks to try when retrieving data
 
 OP_RETURN_NET_TIMEOUT = 10  # how long to time out (in seconds) when communicating with bitcoin node
+
+
+# handle
+
+
+def JSONtoAmount(value):
+    return int(round(value * 1e8))  # was: long
+
+
+def AmountToJSON(amount):
+    return float(amount / 1e8)
+
+
 
 
 # User-facing functions
@@ -79,7 +73,7 @@ def OP_RETURN_send(send_address, send_amount, metadata, testnet=False):
     if not ('isvalid' in result and result['isvalid']):
         return {'error': 'Send address could not be validated: ' + send_address}
 
-    if isinstance(metadata, basestring):
+    if isinstance(metadata, str):
         metadata = metadata.encode('utf-8')  # convert to binary string
 
     metadata_len = len(metadata)
@@ -118,7 +112,7 @@ def OP_RETURN_send(send_address, send_amount, metadata, testnet=False):
     return OP_RETURN_sign_send_txn(raw_txn, testnet)
 
 
-def OP_RETURN_store(data, testnet=False):
+def OP_RETURN_store(data: string, testnet=False) -> {}:
     # Data is stored in OP_RETURNs within a series of chained transactions.
     # If the OP_RETURN is followed by another output, the data continues in the transaction spending that output.
     # When the OP_RETURN is the last output, this also signifies the end of the data.
@@ -128,7 +122,7 @@ def OP_RETURN_store(data, testnet=False):
     if not OP_RETURN_bitcoin_check(testnet):
         return {'error': 'Please check Bitcoin Core is running and OP_RETURN_BITCOIN_* constants are set correctly'}
 
-    if isinstance(data, basestring):
+    if isinstance(data, str):
         data = data.encode('utf-8')  # convert to binary string
 
     data_len = len(data)
@@ -386,7 +380,7 @@ def OP_RETURN_sign_send_txn(raw_txn, testnet):
         return {'error': 'Could not sign the transaction'}
 
     send_txid = OP_RETURN_bitcoin_cmd('sendrawtransaction', testnet, signed_txn['hex'])
-    if not (isinstance(send_txid, basestring) and len(send_txid) == 64):
+    if not (isinstance(send_txid, str) and len(send_txid) == 64):
         return {'error': 'Could not send the transaction'}
 
     return {'txid': str(send_txid)}
@@ -413,7 +407,7 @@ def OP_RETURN_get_mempool_txns(testnet):
 
 def OP_RETURN_get_raw_block(height, testnet):
     block_hash = OP_RETURN_bitcoin_cmd('getblockhash', testnet, height)
-    if not (isinstance(block_hash, basestring) and len(block_hash) == 64):
+    if not (isinstance(block_hash, str) and len(block_hash) == 64):
         return {'error': 'Block at height ' + str(height) + ' not found'}
 
     return {
@@ -469,7 +463,7 @@ def OP_RETURN_bitcoin_cmd(command, testnet, *args):  # more params are read from
         user = OP_RETURN_BITCOIN_USER
         password = OP_RETURN_BITCOIN_PASSWORD
 
-        if not (len(port) and len(user) and len(password)):
+        if not (len(user) and len(password)):
             conf_lines = open(os.path.expanduser('~') + '/.bitcoin/bitcoin.conf').readlines()
 
             for conf_line in conf_lines:
@@ -489,7 +483,7 @@ def OP_RETURN_bitcoin_cmd(command, testnet, *args):  # more params are read from
             return None  # no point trying in this case
 
         url = 'http://' + OP_RETURN_BITCOIN_IP + ':' + str(port) + '/'
-
+        print("btc server url = ", url)
         try:
             from urllib2 import HTTPPasswordMgrWithDefaultRealm, HTTPBasicAuthHandler, build_opener, install_opener, \
                 urlopen
