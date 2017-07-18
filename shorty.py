@@ -16,8 +16,7 @@ host: str = "s/"
 
 
 def toBase62(num: int, b: int = 62) -> str:
-    if b <= 0 or b > 62:
-        return 0
+
     base: str = string.digits + ascii_lowercase + ascii_uppercase
     r: int = num % b
     res: str = base[r]
@@ -66,7 +65,7 @@ def make_shorty(url_to_short: str) -> str:
     else:
         url = 'http://' + original_url
     urlid: int = rdb.lpush("shorty", base64.urlsafe_b64encode(url.encode()))
-    print("*url=" + url + " short url id={}", urlid)
+    print("*url= {0} short url id={1}".format(url, urlid))
     encoded_string: str = toBase62(urlid)
     return host + encoded_string
 

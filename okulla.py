@@ -48,7 +48,7 @@ def notarize():
     pdffile: bytes = pdfkit.from_url(purl, False)
     try:
         pdffile: bytes = pdfkit.from_url(purl, False)
-        print(pdffile)
+        # print(pdffile)
     except:
         return redirect("/url")
 
